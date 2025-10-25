@@ -4,13 +4,16 @@
 import os
 import json
 import shutil
+import urllib.request
 from pathlib import Path
+from urllib.error import HTTPError, URLError
 
 # Configuration
-MATERIAL_REPO = Path("material-design-icons")
+BASE_URL = "https://raw.githubusercontent.com/google/material-design-icons/master/symbols/ios"
 OUTPUT_DIR = Path("Sources/MaterialSymbolsKit/Resources/Symbols.xcassets")
 SYMBOLS_LIST = Path("scripts/popular_symbols.txt")
 STYLE = "materialsymbolsrounded"
+TEMP_DIR = Path("/tmp/material_symbols_download")
 
 def create_xcassets():
     """Create xcassets directory and Contents.json"""
@@ -35,19 +38,42 @@ def read_symbols_list():
                 symbols.append(line)
     return list(set(symbols))  # Remove duplicates
 
-def package_symbol(symbol_name):
-    """Package a single symbol"""
-    # Find symbol file
-    symbol_file = MATERIAL_REPO / "symbols" / "ios" / symbol_name / STYLE / f"{symbol_name}_symbol.svg"
+def download_symbol(symbol_name):
+    """Download a single symbol SVG from GitHub"""
+    url = f"{BASE_URL}/{symbol_name}/{STYLE}/{symbol_name}_symbol.svg"
     
-    if not symbol_file.exists():
-        return False, f"File not found: {symbol_file}"
+    try:
+        # Create temp directory if needed
+        TEMP_DIR.mkdir(parents=True, exist_ok=True)
+        
+        # Download to temp file
+        temp_file = TEMP_DIR / f"{symbol_name}_symbol.svg"
+        urllib.request.urlretrieve(url, temp_file)
+        return True, temp_file
+    except HTTPError as e:
+        if e.code == 404:
+            return False, f"Symbol not found in Google's repo (404)"
+        return False, f"HTTP error {e.code}: {e.reason}"
+    except URLError as e:
+        return False, f"Network error: {e.reason}"
+    except Exception as e:
+        return False, f"Download failed: {str(e)}"
+
+def package_symbol(symbol_name):
+    """Download and package a single symbol"""
+    # Download symbol from GitHub
+    success, result = download_symbol(symbol_name)
+    
+    if not success:
+        return False, result  # result contains error message
+    
+    symbol_file = result  # result contains temp file path
     
     # Create symbolset directory
     symbolset_dir = OUTPUT_DIR / f"material.{symbol_name}.symbolset"
     symbolset_dir.mkdir(parents=True, exist_ok=True)
     
-    # Copy symbol file
+    # Copy symbol file to package
     dest_file = symbolset_dir / f"material.{symbol_name}.svg"
     shutil.copy2(symbol_file, dest_file)
     
@@ -73,36 +99,30 @@ def package_symbol(symbol_name):
 def main():
     print("📦 Packaging Material Symbols")
     print("=" * 50)
-    print(f"Source: {MATERIAL_REPO}/symbols/ios/")
+    print(f"Source: GitHub (downloading directly)")
     print(f"Style: {STYLE}")
     print(f"Output: {OUTPUT_DIR}")
     print()
-    
-    # Check if material-design-icons repo exists
-    if not MATERIAL_REPO.exists():
-        print("❌ Error: material-design-icons directory not found")
-        print("\nPlease clone the repo:")
-        print("  git clone --depth 1 https://github.com/google/material-design-icons.git")
-        return 1
     
     # Create xcassets
     create_xcassets()
     
     # Read symbols list
     symbols = read_symbols_list()
-    print(f"Found {len(symbols)} symbols to package\n")
+    print(f"Found {len(symbols)} symbols to download and package\n")
     
-    # Package each symbol
+    # Package each symbol (downloads on-demand)
     packaged = 0
     skipped = 0
     
-    for symbol_name in symbols:
+    for i, symbol_name in enumerate(symbols, 1):
+        print(f"[{i}/{len(symbols)}] Downloading {symbol_name}...", end=" ")
         success, error = package_symbol(symbol_name)
         if success:
-            print(f"✅ Packaged: {symbol_name}")
+            print("✅")
             packaged += 1
         else:
-            print(f"⚠️  Skipped {symbol_name} - {error}")
+            print(f"⚠️  {error}")
             skipped += 1
     
     print()
@@ -112,6 +132,12 @@ def main():
     print(f"  Successfully packaged: {packaged}")
     print(f"  Skipped (not found): {skipped}")
     print()
+    
+    # Cleanup temp directory
+    if TEMP_DIR.exists():
+        shutil.rmtree(TEMP_DIR)
+        print("🧹 Cleaned up temporary files")
+        print()
     
     if packaged == 0:
         print("❌ No symbols were packaged!")
