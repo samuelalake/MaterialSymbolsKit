@@ -17,8 +17,10 @@ project.xcworkspace
 Package.resolved
 *.swiftpm
 
-# Material Design Icons (large repo - clone separately)
+# Material Design Icons (large repo - Jules will clone this)
 material-design-icons/
+# Batch files generated during Jules processing
+scripts/batch_*.txt
 
 # Test outputs
 test-symbol/MaterialSymbolTest/
@@ -37,6 +39,9 @@ SCOPE_ANALYSIS.md
 SYMBOLS_SELECTION.md
 PUBLISH_TO_GITHUB.md
 XCODE_PREVIEW_SETUP.md
+PREVIEW_INSTRUCTIONS.md
+JULES_PROMPTS.md
+PUSH_TO_GITHUB_NOW.md
 
 # Batch processing intermediates
 scripts/batch_*.txt

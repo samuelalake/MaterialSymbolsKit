@@ -12,7 +12,7 @@ MaterialSymbolsKit brings Google's Material Symbols to Apple platforms in SF Sym
 ## Features
 
 - ✅ **Type-Safe API**: Compile-time symbol validation with `Image(materialSymbol: .home)`
-- ✅ **7 Native Weights**: Ultralight through Bold (100-700) with iOS interpolation for Heavy/Black
+- ✅ **7 Native Weights**: Ultralight through Bold (100-700); Heavy/Black fallback to Regular
 - ✅ **Full SF Symbol Support**: Works with all rendering modes, animations, and effects
 - ✅ **Cross-Platform**: iOS 16+, macOS 13+, watchOS 9+, tvOS 16+
 - ✅ **Zero Dependencies**: Pure Swift, no external dependencies
@@ -162,17 +162,19 @@ Material Symbols include **7 native weights** (100-700):
 - Semibold (600)
 - Bold (700)
 
-**Heavy (800) and Black (900)** weights are automatically interpolated by iOS from Bold, providing excellent visual results while respecting Material Design's weight system.
+**Heavy (800) and Black (900)** weights fall back to Regular (400) as iOS cannot extrapolate beyond the available weight range. For best visual results, use weights from Ultralight (100) to Bold (700).
 
 ```swift
 // Native weights - perfect rendering
 Image(materialSymbol: .home)
-    .fontWeight(.bold)  // 700 - Native
+    .fontWeight(.ultraLight)  // 100 - Native
+    .fontWeight(.regular)     // 400 - Native
+    .fontWeight(.bold)        // 700 - Native (heaviest available)
 
-// Interpolated weights - iOS handles automatically
+// Unsupported weights - fallback to Regular
 Image(materialSymbol: .home)
-    .fontWeight(.heavy)  // 800 - Interpolated from Bold
-    .fontWeight(.black)  // 900 - Interpolated from Bold
+    .fontWeight(.heavy)  // 800 - Falls back to Regular (400)
+    .fontWeight(.black)  // 900 - Falls back to Regular (400)
 ```
 
 ## Available Symbols

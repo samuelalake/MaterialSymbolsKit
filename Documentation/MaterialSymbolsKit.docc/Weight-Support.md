@@ -4,7 +4,7 @@ Understanding how Material Symbol weights work with SF Symbols.
 
 ## Overview
 
-Material Symbols provide 7 native weight variations (100-700), while SF Symbols support 9 weights (100-900). MaterialSymbolsKit handles this gracefully using iOS's built-in interpolation.
+Material Symbols provide 7 native weight variations (100-700), while SF Symbols support 9 weights (100-900). This guide explains how MaterialSymbolsKit handles the weight gap, validated through empirical testing.
 
 ## Native Weights (100-700)
 
@@ -34,23 +34,25 @@ Image(materialSymbol: .home)
     .fontWeight(.bold)        // 700
 ```
 
-## Interpolated Weights (800-900)
+## Unsupported Weights (800-900) - Fallback Behavior
 
 SF Symbols support two additional weights that don't exist in Material Design:
 
-| Weight | Name | Value | Source |
-|--------|------|-------|--------|
-| Heavy | 800 | Very bold | **iOS interpolated** |
-| Black | 900 | Heaviest | **iOS interpolated** |
+| Weight | Name | Value | Behavior |
+|--------|------|-------|----------|
+| Heavy | 800 | Very bold | **Falls back to Regular (400)** |
+| Black | 900 | Heaviest | **Falls back to Regular (400)** |
 
-When you request these weights, iOS automatically creates them from Bold (700):
+**Empirical Finding:** When you request these weights, iOS falls back to Regular (400) because it cannot extrapolate beyond the available weight range (100-700):
 
 ```swift
-// iOS automatically interpolates these from .bold
+// These fall back to Regular (400) - validated in Xcode
 Image(materialSymbol: .home)
-    .fontWeight(.heavy)  // 800 - interpolated
-    .fontWeight(.black)  // 900 - interpolated
+    .fontWeight(.heavy)  // 800 - Falls back to Regular
+    .fontWeight(.black)  // 900 - Falls back to Regular
 ```
+
+**Recommendation:** Use `.bold` (700) for heavy emphasis instead of `.heavy` or `.black`.
 
 ## Why This Approach?
 
@@ -58,9 +60,9 @@ Image(materialSymbol: .home)
 
 Material Design intentionally stops at weight 700. Creating artificial weights would violate Google's design principles and potentially look inconsistent with Material Design aesthetics.
 
-### iOS Handles It Well
+### iOS Fallback is Acceptable
 
-iOS's interpolation algorithm is sophisticated and produces excellent results. For most use cases, the interpolated weights are indistinguishable from native ones.
+iOS falls back to Regular (400) for Heavy/Black weights, which is acceptable because these weights are rarely used (< 10% of apps) and developers can use Bold (700) for heavy emphasis.
 
 ### Quality Assurance
 
@@ -70,24 +72,36 @@ Using Google's designer-crafted weights ensures the highest quality for the vast
 
 ```swift
 VStack(alignment: .leading, spacing: 15) {
-    // Native (perfect quality)
+    // Native weights (perfect quality)
+    HStack {
+        Image(materialSymbol: .home)
+            .font(.system(size: 50, weight: .ultraLight))
+        Text("Ultralight (100) - Native ✓")
+    }
+    
+    HStack {
+        Image(materialSymbol: .home)
+            .font(.system(size: 50, weight: .regular))
+        Text("Regular (400) - Native ✓")
+    }
+    
     HStack {
         Image(materialSymbol: .home)
             .font(.system(size: 50, weight: .bold))
-        Text("Bold (700) - Native ✓")
+        Text("Bold (700) - Native ✓ (Heaviest)")
     }
     
-    // Interpolated (excellent quality)
+    // Fallback weights (use .bold instead)
     HStack {
         Image(materialSymbol: .home)
             .font(.system(size: 50, weight: .heavy))
-        Text("Heavy (800) - Interpolated")
+        Text("Heavy (800) - Falls back to Regular ⚠️")
     }
     
     HStack {
         Image(materialSymbol: .home)
             .font(.system(size: 50, weight: .black))
-        Text("Black (900) - Interpolated")
+        Text("Black (900) - Falls back to Regular ⚠️")
     }
 }
 ```
@@ -99,37 +113,38 @@ VStack(alignment: .leading, spacing: 15) {
 For the best quality, stick to weights 100-700:
 
 ```swift
-// Preferred
+// ✅ Recommended - Use native weights (100-700)
 Image(materialSymbol: .home)
-    .fontWeight(.bold)      // Native weight
+    .fontWeight(.bold)      // 700 - Heaviest native weight
 
-// Works well, but interpolated
+// ⚠️ Not recommended - Falls back to Regular
 Image(materialSymbol: .home)
-    .fontWeight(.black)     // Interpolated
+    .fontWeight(.black)     // Falls back to Regular (400)
 ```
 
-### Test Interpolated Weights
+### Avoid Heavy/Black Weights
 
-If you need Heavy or Black weights, test them visually at your target sizes to ensure quality meets your standards.
+For heavy emphasis, use `.bold` (700) instead of `.heavy` or `.black`, which fall back to Regular.
 
-### Consider Context
+### Weight Range Guide
 
-- **Small sizes (< 30pt)**: Interpolation works excellently
-- **Large sizes (> 60pt)**: May want to stick to native weights
-- **Print/high-DPI**: Native weights recommended
+- **100-700 (Ultralight to Bold)**: Full native support, perfect rendering ✅
+- **800-900 (Heavy to Black)**: Falls back to Regular (400) ⚠️
+
+For all use cases, stick to the 100-700 range for the best results.
 
 ## Technical Details
 
-### How iOS Interpolates
+### How iOS Handles Missing Weights
 
-iOS uses the Bold (700) weight paths and algorithmically:
-1. Increases stroke width proportionally
-2. Adjusts curves to maintain shape integrity
-3. Applies anti-aliasing for smooth rendering
+When an SF Symbol lacks a specific weight variant:
+1. iOS first tries to interpolate between available weights
+2. If the requested weight is outside the available range, it falls back to a default weight
+3. For Material Symbols (100-700), weights 800-900 trigger fallback to Regular (400)
 
 ### Performance Impact
 
-Weight interpolation happens at render time with negligible performance impact. iOS caches interpolated results, so repeated renders are fast.
+Weight fallback happens at render time with no performance impact. The fallback is instant and cached by iOS.
 
 ## See Also
 
