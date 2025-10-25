@@ -94,14 +94,14 @@ extension MaterialSymbols {
         style: MaterialSymbolStyle = .rounded,
         fill: MaterialSymbolFill = .outline
     ) -> String {
-        // v1.0: Only rounded + default fill packaged
-        // v1.1+: Will check for style/fill variants
-        
-        // For now, return base name (only rounded packaged)
-        // Future: "material.\(rawValue).\(style.rawValue).\(fill.rawValue)"
-        return rawValue
+        // Extract base name from rawValue (remove "material." prefix)
+        let baseName = rawValue.replacingOccurrences(of: "material.", with: "")
+
+        // Build full symbol name: material.{name}.{style}.{fill}
+        // Example: material.home.rounded.fill0
+        return "material.\(baseName).\(style.rawValue).\(fill.rawValue)"
     }
-    
+
     /// Get the full symbol name using configuration
     public func symbolName(configuration: MaterialSymbolConfiguration) -> String {
         symbolName(style: configuration.style, fill: configuration.fill)
