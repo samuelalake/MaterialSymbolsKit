@@ -1,8 +1,63 @@
+# Xcode
 .DS_Store
-/.build
-/Packages
 xcuserdata/
+*.xcworkspace
+!default.xcworkspace
+*.xccheckout
+*.moved-aside
 DerivedData/
-.swiftpm/configuration/registries.json
-.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
-.netrc
+*.hmap
+*.ipa
+*.xcuserstate
+project.xcworkspace
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+*.swiftpm
+
+# Material Design Icons (large repo - clone separately)
+material-design-icons/
+
+# Test outputs
+test-symbol/MaterialSymbolTest/
+
+# Build artifacts
+*.dSYM.zip
+*.dSYM
+
+# Documentation drafts (not for distribution)
+blog-post.md
+PROJECT_SUMMARY.md
+NEXT_STEPS.md
+VALIDATION_RESULTS.md
+SCALING_STRATEGY.md
+SCOPE_ANALYSIS.md
+SYMBOLS_SELECTION.md
+PUBLISH_TO_GITHUB.md
+XCODE_PREVIEW_SETUP.md
+
+# Batch processing intermediates
+scripts/batch_*.txt
+scripts/test_one_symbol.txt
+
+# Generated files (can be regenerated)
+# Note: We commit Sources/MaterialSymbolsKit/MaterialSymbols.swift even though generated
+# to ensure package works out of the box
+
+# IDE
+*.swp
+*~
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Thumbnails
+Thumbs.db

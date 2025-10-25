@@ -1,0 +1,125 @@
+# Popular Material Symbols - Curated list of 50-100 most commonly used symbols
+# Navigation
+home
+menu
+search
+arrow_back
+arrow_forward
+close
+settings
+more_vert
+more_horiz
+chevron_left
+chevron_right
+expand_more
+expand_less
+
+# Actions
+add
+delete
+edit
+save
+share
+download
+upload
+refresh
+check
+clear
+done
+cancel
+remove
+
+# Communication
+phone
+email
+chat
+notifications
+person
+group
+contact_mail
+contact_phone
+
+# Media
+play_arrow
+pause
+stop
+volume_up
+volume_down
+volume_off
+favorite
+favorite_border
+star
+star_border
+thumb_up
+thumb_down
+
+# Content
+copy
+content_copy
+content_cut
+content_paste
+undo
+redo
+link
+attachment
+send
+
+# File
+folder
+folder_open
+insert_drive_file
+cloud
+cloud_upload
+cloud_download
+attach_file
+description
+
+# Hardware
+keyboard
+mouse
+print
+scanner
+computer
+phone_iphone
+tablet
+watch
+camera
+mic
+
+# Social
+share
+bookmark
+bookmark_border
+flag
+report
+
+# UI Controls
+visibility
+visibility_off
+lock
+lock_open
+help
+info
+warning
+error
+check_circle
+cancel
+
+# Shopping/Commerce
+shopping_cart
+local_offer
+credit_card
+payment
+
+# Location
+place
+location_on
+map
+directions
+
+# Other
+calendar_today
+schedule
+event
+alarm
+
